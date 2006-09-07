@@ -25,4 +25,11 @@ bfUnshift :: BrainFuck -> BrainFuck
 bfUnshift (BF p v) = BF (p-1) v
 
 
+bfInput :: BrainFuck -> Integer -> BrainFuck
+bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
+
+
+bfPrint bf = print $ bfValue bf
+
+
 
