@@ -1,3 +1,5 @@
+module Main (main) where
+
 data BrainFuck = BF { bfPointer :: Int, bfValues :: [Integer] } deriving (Show)
 
 
@@ -31,5 +33,8 @@ bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
 
 bfPrint bf = print $ bfValue bf
 
+
+
+main = bfPrint $ bfInitial
 
 
