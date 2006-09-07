@@ -34,6 +34,14 @@ bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
 bfPrint bf = print $ bfValue bf
 
 
+bfEvaluate = foldl eval
+               where eval bf' c = case c of
+                                    '+' -> bfIncrement bf'
+                                    '-' -> bfDecrement bf'
+                                    '>' -> bfShift bf'
+                                    '<' -> bfUnshift bf'
+
+
 
 main = bfPrint $ bfInitial
 
