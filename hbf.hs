@@ -1,5 +1,9 @@
 module Main (main) where
 
+
+import System
+
+
 data BrainFuck = BF { bfPointer :: Int, bfValues :: [Integer] } deriving (Show)
 
 
@@ -43,6 +47,8 @@ bfEvaluate = foldl eval
 
 
 
-main = bfPrint $ bfInitial
+main = do args <- getArgs
+          prog <- readFile $ head args
+          print $ bfEvaluate bfInitial prog
 
 
