@@ -35,20 +35,21 @@ bfInput :: BrainF_ck -> Int -> BrainF_ck
 bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
 
 
-bfPrint bf = print $ bfValue bf
+bfPrint bf = do print $ bfValue bf
+                return bf
 
 
-bfEvaluate = foldl eval
-               where eval bf c = case c of
-                                   '+' -> bfIncrement bf
-                                   '-' -> bfDecrement bf
-                                   '>' -> bfShift bf
-                                   '<' -> bfUnshift bf
+bfEvaluate bf c = do bf' <- bf
+                     case c of '+' -> return $ bfIncrement bf'
+                               '-' -> return $ bfDecrement bf'
+                               '>' -> return $ bfShift bf'
+                               '<' -> return $ bfUnshift bf'
+                               '.' -> bfPrint bf'
 
 
 
-main = do args <- getArgs
-          prog <- readFile $ head args
-          print $ bfEvaluate bfInitial prog
-
-
+--main = do args <- getArgs
+--          prog <- readFile $ head args
+--          bf <- foldl bfEvaluate bfInitial prog
+--          print bf
+--
