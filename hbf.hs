@@ -34,8 +34,9 @@ bfUnshift (BF p v) = BF (p-1) v
 
 --bfInput :: BrainF_ck -> Int -> BrainF_ck
 --bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
---
 
+
+bfPrint :: BrainF_ck -> IO BrainF_ck
 bfPrint bf = do putStr $ show $ bfValue bf
                 return bf
 
@@ -49,7 +50,7 @@ bfEvaluate bf c = case c of '+' -> return $ bfIncrement bf
 
 
 
---main :: IO BrainF_ck
+main :: IO BrainF_ck
 main = do args <- getArgs
           prog <- readFile $ head args
           foldM bfEvaluate bfInitial prog
