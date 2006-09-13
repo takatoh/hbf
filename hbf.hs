@@ -32,8 +32,12 @@ bfUnshift :: BrainF_ck -> BrainF_ck
 bfUnshift (BF p v) = BF (p-1) v
 
 
---bfInput :: BrainF_ck -> Int -> BrainF_ck
---bfInput (BF p v) n = BF p ((take p v) ++ [n] ++ (tail $ drop p v))
+bfInput :: BrainF_ck -> IO BrainF_ck
+bfInput bf = do let p = bfPointer bf
+                let r = bfRegister bf
+                putStr "\ninput? "
+                v <- getChar
+                return $ BF p ((take p r) ++ [read [v]] ++ (tail $ drop p r))
 
 
 bfPrint :: BrainF_ck -> IO BrainF_ck
@@ -47,6 +51,7 @@ bfEvaluate bf c = case c of '+' -> return $ bfIncrement bf
                             '>' -> return $ bfShift bf
                             '<' -> return $ bfUnshift bf
                             '.' -> bfPrint bf
+                            ',' -> bfInput bf
 
 
 
