@@ -55,9 +55,10 @@ bfEvaluate bf c = case c of '+' -> return $ bfIncrement bf
 
 
 
-main :: IO BrainF_ck
+main :: IO ()
 main = do args <- getArgs
           prog <- readFile $ head args
-          foldM bfEvaluate bfInitial prog
+          result <- foldM bfEvaluate bfInitial prog
+          print result
 
 
