@@ -46,12 +46,12 @@ bfPrint bf = do putStr $ show $ bfValue bf
 
 
 bfEvaluate :: BrainF_ck -> Char -> IO BrainF_ck
-bfEvaluate bf c = case c of '+' -> return $ bfIncrement bf
-                            '-' -> return $ bfDecrement bf
-                            '>' -> return $ bfShift bf
-                            '<' -> return $ bfUnshift bf
-                            '.' -> bfPrint bf
-                            ',' -> bfInput bf
+bfEvaluate bf '+' = return $ bfIncrement bf
+bfEvaluate bf '-' = return $ bfDecrement bf
+bfEvaluate bf '>' = return $ bfShift bf
+bfEvaluate bf '<' = return $ bfUnshift bf
+bfEvaluate bf '.' = bfPrint bf
+bfEvaluate bf ',' = bfInput bf
 
 
 
