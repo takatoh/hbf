@@ -94,8 +94,8 @@ bfRun bf prog = run $ progFetch prog
 
 
 main :: IO BrainF_ck
-main = do args <- getArgs
-          src <- readFile $ head args
-          bfRun bfInitial $ progNew $ concat $ lines src
+main = do filename <- getArgs >>= return . head
+          prog <- readFile filename >>= ((return . progNew) . concat) . lines
+          bfRun bfInitial prog
 
 
