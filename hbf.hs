@@ -3,6 +3,7 @@ module Main where
 
 import System
 import Monad
+import Data.Char
 
 
 data BrainF_ck = BF { bfPointer :: Int, bfRegister :: [Int] } deriving (Show)
@@ -38,12 +39,12 @@ bfInput :: BrainF_ck -> IO BrainF_ck
 bfInput bf = do let p = bfPointer bf
                 let r = bfRegister bf
                 putStr "\ninput? "
-                v <- getChar
-                return $ BF p ((take p r) ++ [read [v]] ++ (tail $ drop p r))
+                c <- getChar
+                return $ BF p ((take p r) ++ [ord c] ++ (tail $ drop p r))
 
 
 bfPrint :: BrainF_ck -> IO BrainF_ck
-bfPrint bf = do putStr $ show $ bfValue bf
+bfPrint bf = do putChar $ chr $ bfValue bf
                 return bf
 
 
