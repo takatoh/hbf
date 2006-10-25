@@ -12,19 +12,23 @@ type Program = ([Char], [Char])
 
 
 bfInitial :: BrainF_ck
-bfInitial = BF { bfPointer = 0, bfRegister = [0,0,0,0,0,0,0,0,0,0] }
+bfInitial = BF { bfPointer = 0, bfRegister = replicate 32 0 }
 
 
 bfValue :: BrainF_ck -> Int
 bfValue bf = (bfRegister bf) !! (bfPointer bf)
 
 
+bfSetValue :: BrainF_ck -> Int -> BrainF_ck
+bfSetValue (BF p v) i = BF p ((take p v) ++ [i] ++ (tail $ drop p v))
+
+
 bfIncrement :: BrainF_ck -> BrainF_ck
-bfIncrement (BF p v) = BF p ((take p v) ++ [(v !! p) + 1] ++ (tail $ drop p v))
+bfIncrement bf = bfSetValue bf (bfValue bf + 1)
 
 
 bfDecrement :: BrainF_ck -> BrainF_ck
-bfDecrement (BF p v) = BF p ((take p v) ++ [(v !! p) - 1] ++ (tail $ drop p v))
+bfDecrement bf = bfSetValue bf (bfValue bf - 1)
 
 
 bfShift :: BrainF_ck -> BrainF_ck
@@ -36,11 +40,9 @@ bfUnshift (BF p v) = BF (p-1) v
 
 
 bfInput :: BrainF_ck -> IO BrainF_ck
-bfInput bf = do let p = bfPointer bf
-                let r = bfRegister bf
-                putStr "\ninput? "
+bfInput bf = do putStr "\ninput? "
                 c <- getChar
-                return $ BF p ((take p r) ++ [ord c] ++ (tail $ drop p r))
+                return $ bfSetValue bf (ord c)
 
 
 bfPrint :: BrainF_ck -> IO BrainF_ck
@@ -62,7 +64,7 @@ progNew str = ([], str)
 
 
 progFetch :: Program -> [Char]
-progFetch prog = snd prog
+progFetch = snd
 
 
 progShift :: Program -> Program
@@ -74,29 +76,38 @@ progUnshift (l, r) = (take ((length l) -1) l, (last l):r)
 
 
 progSkip :: BrainF_ck -> Program -> Program
-progSkip bf prog = if bfValue bf == 0 then skip prog else progShift prog
-  where skip p = if (head $ progFetch next) == ']' then next else skip next
-          where next = progShift p
+progSkip bf | bfValue bf == 0 = skip
+            | otherwise       = progShift
+  where
+    skip p | (head . progFetch) next == ']' = next
+           | otherwise                      = skip next
+      where
+        next = progShift p
 
 
 progBack :: BrainF_ck -> Program -> Program
-progBack bf prog = if bfValue bf == 0 then progShift prog else back prog
-  where back p = if (head $ progFetch prev) == '[' then prev else back prev
-          where prev = progUnshift p
+progBack bf | bfValue bf == 0 = progShift
+            | otherwise       = back
+  where
+    back p | (head . progFetch) prev == '[' = prev
+           | otherwise                      = back prev
+      where
+        prev = progUnshift p
 
 
-bfRun :: BrainF_ck -> Program -> IO BrainF_ck
-bfRun bf prog = run $ progFetch prog
-  where run []                  = return bf
-        run (c:cs) | c == '['   = bfRun bf (progSkip bf prog)
-                   | c == ']'   = bfRun bf (progBack bf prog)
-                   | otherwise = do next <- bfEvaluate bf c
-                                    bfRun next (progShift prog)
+bfRun :: BrainF_ck -> Program -> IO ()
+bfRun bf prog = (run . progFetch) prog
+  where
+    run []                 = return ()
+    run (c:cs) | c == '['  = bfRun bf $ progSkip bf prog
+               | c == ']'  = bfRun bf $ progBack bf prog
+               | otherwise = do next <- bfEvaluate bf c
+                                bfRun next $ progShift prog
 
 
-main :: IO BrainF_ck
+main :: IO ()
 main = do filename <- getArgs >>= return . head
-          prog <- readFile filename >>= ((return . progNew) . concat) . lines
+          prog <- readFile filename >>= return . progNew . concat . lines
           bfRun bfInitial prog
 
 
